@@ -1,8 +1,10 @@
-import streamlit as st
-import utils
-from tempfile import NamedTemporaryFile
-from loguru import logger
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+import streamlit as st
+from loguru import logger
+
+import utils
 
 st.title('Generate Python Call Graph Online')
 

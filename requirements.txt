@@ -1,2 +1,3 @@
 streamlit
 pyan3
+loguru

@@ -1,8 +1,9 @@
-import subprocess
-from tempfile import NamedTemporaryFile
-from loguru import logger
-from pathlib import Path
 import os
+import subprocess
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+from loguru import logger
 
 
 def generate_call_graph(pyfile: str, **kwargs) -> str:
