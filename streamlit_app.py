@@ -1,5 +1,6 @@
+import re
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import streamlit as st
 from loguru import logger
@@ -8,10 +9,19 @@ import utils
 
 st.title("Generate Python Call Graph Online")
 st.write(
-    "Input your python file content, click Generate and wait a minute, you will see the call graph. You can also download it as an interactive html."
+    """
+Usage:
+
+1. Input your python file content or upload your python files.
+2. click `Generate` and wait seconds.
+3. You will see the call graph. You can also download it as an interactive html.
+
+⚠️ The file name starting with a number will have an underscore added at the beginning because Graphviz does not support node names starting with a number. See [here](https://graphviz.org/doc/info/lang.html#:~:text=not%20beginning%20with%20a%20digit) and [here](https://patchwork.ozlabs.org/project/buildroot/patch/20181124093452.12350-1-yann.morin.1998@free.fr/) for reference.
+"""
 )
 
 code = st.text_area(label="Code", placeholder="Please input your Python code here")
+uploaded_files = st.file_uploader("Choose python files", accept_multiple_files=True)
 with st.sidebar:
     uses = st.checkbox("Add edges for 'uses' relationships", value=True)
     defines = st.checkbox("Add edges for 'defines' relationships", value=False)
@@ -21,16 +31,42 @@ with st.sidebar:
     colored = st.checkbox("Color nodes according to namespace", value=True)
 clicked = st.button("Generate")
 if clicked:
-    with NamedTemporaryFile(mode="w+", encoding="utf8") as f:
-        logger.debug(f"{code=}")
-        f.write(code)
-        f.seek(0)
-        data = utils.generate_call_graph(
-            f.name, format="svg", defines=defines, grouped=grouped, colored=colored
-        )
-        html = utils.generate_call_graph(
-            f.name, format="html", defines=defines, grouped=grouped, colored=colored
-        )
+    if code:
+        with NamedTemporaryFile(mode="w+", encoding="utf8") as f:
+            logger.debug(f"{code=}")
+            f.write(code)
+            f.seek(0)
+            data = utils.generate_call_graph(
+                f.name, format="svg", defines=defines, grouped=grouped, colored=colored
+            )
+            html = utils.generate_call_graph(
+                f.name, format="html", defines=defines, grouped=grouped, colored=colored
+            )
+    else:
+        with TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            for uploaded_file in uploaded_files:
+                filename = (
+                    f"_{uploaded_file.name}"
+                    if re.match(r"\d", uploaded_file.name)
+                    else uploaded_file.name
+                )
+                tmpdir.joinpath(filename).write_bytes(uploaded_file.read())
+            logger.debug(f"{list(tmpdir.glob('*'))}")
+            data = utils.generate_call_graph(
+                f"{tmpdir}/*.py",
+                format="svg",
+                defines=defines,
+                grouped=grouped,
+                colored=colored,
+            )
+            html = utils.generate_call_graph(
+                f"{tmpdir}/*.py",
+                format="html",
+                defines=defines,
+                grouped=grouped,
+                colored=colored,
+            )
     # logger.info(f"{dot=}")
     # st.graphviz_chart(dot)
     st.image(data)

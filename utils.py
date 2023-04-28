@@ -22,16 +22,11 @@ def generate_call_graph(
         if colored:
             cmd.append("--colored")
         if format == "dot":
-            # cmd = ['pyan3', pyfile, '--uses', '--no-defines', '--colored', '--grouped', '--annotated', '--dot', f'>{f.name}']
-            # cmd = ['pyan3', pyfile, '--uses', '--no-defines', '--colored', '--grouped', '--dot', f'>{f.name}']
-            # subprocess.run(cmd, check=True)
             cmd.append("--dot")
         elif format == "svg":
-            # cmd = ['pyan3', pyfile, '--uses', '--no-defines', '--colored', '--grouped', '--svg', f'>{f.name}']
             cmd.append("--svg")
         elif format == "html":
             cmd.append("--html")
-            # cmd = ['pyan3', pyfile, '--uses', '--no-defines', '--colored', '--grouped', '--html', f'>{f.name}']
         cmd.append(f">{f.name}")
         logger.debug(f"cmd={' '.join(cmd)}")
         os.system(" ".join(cmd))
