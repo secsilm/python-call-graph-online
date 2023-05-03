@@ -53,7 +53,7 @@ if clicked:
                 )
                 tmpdir.joinpath(filename).write_bytes(uploaded_file.read())
             logger.debug(f"{list(tmpdir.glob('*'))}")
-            data = utils.generate_call_graph(
+            svg = utils.generate_call_graph(
                 f"{tmpdir}/*.py",
                 format="svg",
                 defines=defines,
@@ -69,7 +69,13 @@ if clicked:
             )
     # logger.info(f"{dot=}")
     # st.graphviz_chart(dot)
-    st.image(data)
-    st.download_button(
-        "Download interactive html", html, file_name="python-cg.html", mime="text/html"
-    )
+    if svg.startswith("ERROR-"):
+        st.error(svg.split("-", maxsplit=1)[1])
+    else:
+        st.image(svg)
+        st.download_button(
+            "Download interactive html",
+            html,
+            file_name="python-cg.html",
+            mime="text/html",
+        )
