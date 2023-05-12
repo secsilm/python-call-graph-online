@@ -31,9 +31,6 @@ def generate_call_graph(
         logger.debug(f"cmd={' '.join(cmd)}")
         # os.system不能捕获异常
         # os.system(" ".join(cmd))
-        c = f"ls {pyfile}"
-        logger.debug(f"{os.system(c)}")
-        logger.debug(f"{cmd=}")
         sp_result = subprocess.run(
             " ".join(cmd), shell=True, check=False, capture_output=True, text=True
         )

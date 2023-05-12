@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+import subprocess
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import streamlit as st
@@ -12,7 +13,7 @@ st.write(
     """
 Usage:
 
-1. Input your python file content or upload your python files.
+1. Input your python file content (or github link) or upload your python files. If it's a github link, it must start with `https://github.com/`.
 2. click `Generate` and wait seconds.
 3. You will see the call graph. You can also download it as an interactive html.
 
@@ -32,16 +33,38 @@ with st.sidebar:
 clicked = st.button("Generate")
 if clicked:
     if code:
-        with NamedTemporaryFile(mode="w+", encoding="utf8") as f:
-            logger.debug(f"{code=}")
-            f.write(code)
-            f.seek(0)
-            data = utils.generate_call_graph(
-                f.name, format="svg", defines=defines, grouped=grouped, colored=colored
-            )
-            html = utils.generate_call_graph(
-                f.name, format="html", defines=defines, grouped=grouped, colored=colored
-            )
+        if code.startswith('https://github.com/'):
+            with TemporaryDirectory() as tmpdir:
+                cmd = ['git', 'clone', code, tmpdir]
+                logger.info(f"Cloning {code} to {tmpdir}")
+                subprocess.run(
+                    " ".join(cmd), shell=True, check=False, capture_output=True, text=True
+                )
+                svg = utils.generate_call_graph(
+                    f"{tmpdir}/*.py",
+                    format="svg",
+                    defines=defines,
+                    grouped=grouped,
+                    colored=colored,
+                )
+                html = utils.generate_call_graph(
+                    f"{tmpdir}/*.py",
+                    format="html",
+                    defines=defines,
+                    grouped=grouped,
+                    colored=colored,
+                )
+        else:
+            with NamedTemporaryFile(mode="w+", encoding="utf8") as f:
+                logger.debug(f"{code=}")
+                f.write(code)
+                f.seek(0)
+                data = utils.generate_call_graph(
+                    f.name, format="svg", defines=defines, grouped=grouped, colored=colored
+                )
+                html = utils.generate_call_graph(
+                    f.name, format="html", defines=defines, grouped=grouped, colored=colored
+                )
     else:
         with TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
