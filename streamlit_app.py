@@ -41,14 +41,14 @@ if clicked:
                     " ".join(cmd), shell=True, check=False, capture_output=True, text=True
                 )
                 svg = utils.generate_call_graph(
-                    f"{tmpdir}/*.py",
+                    f"{tmpdir}/**/*.py",
                     format="svg",
                     defines=defines,
                     grouped=grouped,
                     colored=colored,
                 )
                 html = utils.generate_call_graph(
-                    f"{tmpdir}/*.py",
+                    f"{tmpdir}/**/*.py",
                     format="html",
                     defines=defines,
                     grouped=grouped,
@@ -77,14 +77,14 @@ if clicked:
                 tmpdir.joinpath(filename).write_bytes(uploaded_file.read())
             logger.debug(f"{list(tmpdir.glob('*'))}")
             svg = utils.generate_call_graph(
-                f"{tmpdir}/*.py",
+                f"{tmpdir}/**/*.py",
                 format="svg",
                 defines=defines,
                 grouped=grouped,
                 colored=colored,
             )
             html = utils.generate_call_graph(
-                f"{tmpdir}/*.py",
+                f"{tmpdir}/**/*.py",
                 format="html",
                 defines=defines,
                 grouped=grouped,
