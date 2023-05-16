@@ -1,6 +1,6 @@
 import re
-from pathlib import Path
 import subprocess
+from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import streamlit as st
@@ -33,12 +33,16 @@ with st.sidebar:
 clicked = st.button("Generate")
 if clicked:
     if code:
-        if code.startswith('https://github.com/'):
+        if code.startswith("https://github.com/"):
             with TemporaryDirectory() as tmpdir:
-                cmd = ['git', 'clone', code, tmpdir]
+                cmd = ["git", "clone", code, tmpdir]
                 logger.info(f"Cloning {code} to {tmpdir}")
                 subprocess.run(
-                    " ".join(cmd), shell=True, check=False, capture_output=True, text=True
+                    " ".join(cmd),
+                    shell=True,
+                    check=False,
+                    capture_output=True,
+                    text=True,
                 )
                 svg = utils.generate_call_graph(
                     f"{tmpdir}/**/*.py",
@@ -60,10 +64,18 @@ if clicked:
                 f.write(code)
                 f.seek(0)
                 svg = utils.generate_call_graph(
-                    f.name, format="svg", defines=defines, grouped=grouped, colored=colored
+                    f.name,
+                    format="svg",
+                    defines=defines,
+                    grouped=grouped,
+                    colored=colored,
                 )
                 html = utils.generate_call_graph(
-                    f.name, format="html", defines=defines, grouped=grouped, colored=colored
+                    f.name,
+                    format="html",
+                    defines=defines,
+                    grouped=grouped,
+                    colored=colored,
                 )
     else:
         with TemporaryDirectory() as tmpdir:
