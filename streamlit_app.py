@@ -59,7 +59,7 @@ if clicked:
                 logger.debug(f"{code=}")
                 f.write(code)
                 f.seek(0)
-                data = utils.generate_call_graph(
+                svg = utils.generate_call_graph(
                     f.name, format="svg", defines=defines, grouped=grouped, colored=colored
                 )
                 html = utils.generate_call_graph(
