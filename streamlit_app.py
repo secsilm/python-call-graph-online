@@ -23,6 +23,12 @@ Usage:
 
 code = st.text_area(label="Code", placeholder="Please input your Python code here")
 uploaded_files = st.file_uploader("Choose python files", accept_multiple_files=True)
+rankdir_mapping = {
+    "TB": "Top to bottom",
+    "BT": "Bottom to top",
+    "LR": "Left to right",
+    "RL": "Right to left",
+}
 with st.sidebar:
     uses = st.checkbox("Add edges for 'uses' relationships", value=True)
     defines = st.checkbox("Add edges for 'defines' relationships", value=False)
@@ -30,6 +36,12 @@ with st.sidebar:
         "Group nodes (create subgraphs) according to namespace", value=True
     )
     colored = st.checkbox("Color nodes according to namespace", value=True)
+    rankdir = st.radio(
+        label="Rankdir",
+        options=["TB", "BT", "LR", "RL"],
+        index=0,
+        format_func=lambda x: rankdir_mapping[x],
+    )
 clicked = st.button("Generate")
 if clicked:
     if code:
@@ -50,6 +62,7 @@ if clicked:
                     defines=defines,
                     grouped=grouped,
                     colored=colored,
+                    rankdir=rankdir,
                 )
                 html = utils.generate_call_graph(
                     f"{tmpdir}/**/*.py",
@@ -57,6 +70,7 @@ if clicked:
                     defines=defines,
                     grouped=grouped,
                     colored=colored,
+                    rankdir=rankdir,
                 )
         else:
             with NamedTemporaryFile(mode="w+", encoding="utf8") as f:
@@ -69,6 +83,7 @@ if clicked:
                     defines=defines,
                     grouped=grouped,
                     colored=colored,
+                    rankdir=rankdir,
                 )
                 html = utils.generate_call_graph(
                     f.name,
@@ -76,6 +91,7 @@ if clicked:
                     defines=defines,
                     grouped=grouped,
                     colored=colored,
+                    rankdir=rankdir,
                 )
     else:
         with TemporaryDirectory() as tmpdir:
@@ -94,6 +110,7 @@ if clicked:
                 defines=defines,
                 grouped=grouped,
                 colored=colored,
+                rankdir=rankdir,
             )
             html = utils.generate_call_graph(
                 f"{tmpdir}/**/*.py",
@@ -101,12 +118,15 @@ if clicked:
                 defines=defines,
                 grouped=grouped,
                 colored=colored,
+                rankdir=rankdir,
             )
     # logger.info(f"{dot=}")
     # st.graphviz_chart(dot)
     if svg.startswith("ERROR-"):
         st.error(svg.split("-", maxsplit=1)[1])
     else:
+        # TODO: find a better way to embed html
+        # st.components.v1.html(html, width=1080, height=1800, scrolling=True)
         st.image(svg)
         st.download_button(
             "Download interactive html",

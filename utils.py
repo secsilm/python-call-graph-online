@@ -9,7 +9,13 @@ from loguru import logger
 
 
 def generate_call_graph(
-    pyfile: str, format="dot", uses=True, defines=False, grouped=True, colored=True
+    pyfile: str,
+    format="dot",
+    uses=True,
+    defines=False,
+    grouped=True,
+    colored=True,
+    rankdir="TB",
 ) -> str:
     with NamedTemporaryFile(mode="w+", encoding="utf8", delete=False) as f:
         # logger.debug(f"input content: {Path(pyfile).read_text()}")
@@ -17,6 +23,7 @@ def generate_call_graph(
         cmd = ["pyan3", pyfile]
         cmd.append("--uses" if uses else "--no-uses")
         cmd.append("--defines" if defines else "--no-defines")
+        cmd.extend(["--dot-rankdir", rankdir])
         if grouped:
             cmd.append("--grouped")
         if colored:
