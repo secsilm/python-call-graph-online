@@ -21,7 +21,7 @@ Usage:
 """
 )
 
-code = st.text_area(label="Code", placeholder="Please input your Python code here")
+code = st.text_area(label="Code", placeholder="Python code or github url")
 uploaded_files = st.file_uploader("Choose python files", accept_multiple_files=True)
 rankdir_mapping = {
     "TB": "Top to bottom",
