@@ -2,12 +2,14 @@ import re
 import subprocess
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from zipfile import ZipFile
 
 import streamlit as st
 from loguru import logger
 
 import utils
 
+st.set_page_config(page_title="Generate Python Call Graph Online")
 st.title("Generate Python Call Graph Online")
 st.write(
     """
@@ -96,14 +98,21 @@ if clicked:
     else:
         with TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
+
             for uploaded_file in uploaded_files:
+                # Disallow filename startswith number
                 filename = (
                     f"_{uploaded_file.name}"
                     if re.match(r"\d", uploaded_file.name)
                     else uploaded_file.name
                 )
-                tmpdir.joinpath(filename).write_bytes(uploaded_file.read())
-            logger.debug(f"{list(tmpdir.glob('*'))}")
+                # if it's a zipfile, then unzip it.
+                if filename.endswith(".zip"):
+                    with ZipFile(uploaded_file, "r") as tmpzip:
+                        tmpzip.extractall(tmpdir)
+                else:
+                    tmpdir.joinpath(filename).write_bytes(uploaded_file.read())
+            logger.debug(f"files in tmpdir: {list(tmpdir.glob('*'))}")
             svg = utils.generate_call_graph(
                 f"{tmpdir}/**/*.py",
                 format="svg",
